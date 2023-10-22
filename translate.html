@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translator</title>
+    <style>
+        *{
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            font-family: sans-serif;
+        }
+        body{
+            background-color: darkseagreen;
+            text-align: center;
+            margin-top: 70px;
+        }
+        .box{
+            display:inline-block;
+            border-radius: 15px;
+            background-color: white;
+            box-shadow: 4px 4px 8px grey;
+            padding:18px;
+        }
+        .txt{
+            display: flex;
+        }
+        .textbox{
+            width:50%;
+            padding: 15px;
+        }
+        textarea{
+            width:400px;
+            height:400px;
+            padding:10px;
+            font-size: 18px;
+            resize: none;
+        }
+        .options{
+           background-color: rgb(228, 199, 121);
+        }
+        #btn{
+            background-color: rgb(241, 214, 122);
+            border-radius: 8px;
+            border:5px outset rgb(247, 181, 58);
+            font-size: 25px;
+            padding:8px 0;
+        }
+        button{
+            font-size: 15px;
+            padding:10px;
+        }
+        select{
+            font-size:15px;
+        }
+        h1{
+            font-size: 25px;
+            font-family: cursive;
+            color:rgb(255 223 164);
+        }
+    </style>
+</head>
+<body>
+    <script src="countries.js"></script>
+    <h1>Translation Tool</h1>
+    <div class="box">
+        <div class="txt">
+            <div class="textbox">
+                <textarea placeholder="Write here" id="frombox"></textarea>
+                <div class="options">
+                    <select></select>
+                    <button onclick="speakbtn('btn1')">Speak</button>
+                </div>
+            </div>
+            <div class="textbox">
+                <textarea id="tobox" placeholder="Translation"></textarea>
+                <div class="options">
+                    <select></select>
+                    <button onclick="speakbtn('btn2')">Speak</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="btn">Translate</div> 
+    </div>
+    <script>
+        var btn=document.getElementById('btn');
+        var selectTags=document.querySelectorAll('select');
+        var frombox=document.getElementById('frombox');
+        var tobox=document.getElementById('tobox');
+        var lang1,lang2;
+        selectTags.forEach((slt,k)=>
+        {
+          for(lang_code in countries)
+          {
+            let select=k==0?(lang_code=="en-GB"? true:false):(lang_code=="hi-IN"?true:false);
+            let opt=document.createElement('option');
+            opt.value=lang_code;
+            opt.innerHTML=countries[lang_code];
+            opt.selected=select;
+            slt.appendChild(opt);
+          }
+        });
+
+        btn.addEventListener('click',()=>{
+            text=frombox.value;
+            if(text!="")
+            {
+                tobox.value="Translating....";  
+                translate(text);
+            }
+        });
+
+        function speakbtn(b)
+        {
+                if(b=="btn1" && frombox.value!="")
+                {
+                    speak(selectTags[0].value , frombox.value);
+                }
+                else if(b=="btn2" && tobox.value!="")
+                {
+                    speak(selectTags[1].value , tobox.value);
+                }
+        }
+        function speak(language,text)
+        {
+         let say;
+         say=new SpeechSynthesisUtterance(text);
+         say.lang=language;
+         speechSynthesis.speak(say);
+        }
+        function translate(text)
+        {
+            lang1=selectTags[0].value;
+            lang2=selectTags[1].value;
+            let api="https://api.mymemory.translated.net/get?q="+text+"&langpair="+lang1+"|"+lang2;
+            fetch(api).then(res=>res.json()).then(data=>{
+                 tobox.value=data.responseData.translatedText;
+            });
+        }
+    </script>
+</body>
+</html>
